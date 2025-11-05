@@ -145,13 +145,27 @@ cp .env.example .env
 
 ### Variables d'environnement
 
+**Serveur:**
 - `PORT`: Port de l'API (défaut: 80)
 - `NODE_ENV`: Environnement (production/development)
+
+**Base de données:**
 - `DB_HOST`: Hôte de la base de données (défaut: db)
 - `DB_PORT`: Port de la base de données (défaut: 3306)
 - `DB_USER`: Utilisateur de la base de données
 - `DB_PASSWORD`: Mot de passe de la base de données
 - `DB_NAME`: Nom de la base de données
+
+**Email (SMTP):**
+- `SMTP_ENABLED`: Activer/désactiver l'envoi d'emails (true/false, défaut: false)
+- `SMTP_HOST`: Serveur SMTP (ex: smtp.gmail.com)
+- `SMTP_PORT`: Port SMTP (défaut: 587)
+- `SMTP_SECURE`: Utiliser SSL/TLS (true pour port 465, false pour 587)
+- `SMTP_USER`: Identifiant SMTP (email)
+- `SMTP_PASS`: Mot de passe SMTP (pour Gmail, utiliser un mot de passe d'application)
+- `SMTP_FROM_NAME`: Nom de l'expéditeur
+- `SMTP_FROM_EMAIL`: Email de l'expéditeur
+- `SMTP_BCC_EMAIL`: Email en copie cachée (optionnel, ex: jimmy@neodigit.fr)
 
 ## 🛠️ Services Docker
 
@@ -166,12 +180,57 @@ Accéder à Adminer: `http://localhost:8080`
 - Mot de passe: apiresultspwd
 - Base de données: cesi_live_quizz
 
+## 📧 Configuration Email
+
+L'API envoie automatiquement un email à l'utilisateur après la soumission d'un quiz avec:
+- **Objet**: Quiz {Titre} - Score: {Pourcentage}% ({Note})
+- **Contenu**: Résultats détaillés formatés en HTML
+- **Copie cachée (BCC)**: Optionnelle (configurable via `SMTP_BCC_EMAIL`)
+
+### Activation de l'envoi d'emails
+
+1. **Configurer les variables SMTP** dans `.env` ou `compose.dev.yml`
+2. **Activer l'envoi**: `SMTP_ENABLED=true`
+
+### Exemple avec Gmail
+
+Pour utiliser Gmail, vous devez créer un **mot de passe d'application**:
+
+1. Activez la validation en deux étapes sur votre compte Google
+2. Allez dans [Mots de passe d'application](https://myaccount.google.com/apppasswords)
+3. Créez un mot de passe pour "Mail"
+4. Utilisez ce mot de passe dans `SMTP_PASS`
+
+```env
+SMTP_ENABLED=true
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=votre-email@gmail.com
+SMTP_PASS=votre-mot-de-passe-application
+SMTP_FROM_NAME=Quiz Results
+SMTP_FROM_EMAIL=votre-email@gmail.com
+SMTP_BCC_EMAIL=jimmy@neodigit.fr
+```
+
+### Format de l'email
+
+L'email envoyé contient:
+- 🎯 Score coloré (vert >70%, orange 50-70%, rouge <50%)
+- 📊 Résumé des résultats (X/Y bonnes réponses)
+- 📋 Tableau détaillé des questions/réponses
+- ⏱️ Durée de session et date de complétion
+- 📧 Envoi automatique et non-bloquant
+
+**Note**: L'envoi d'email est non-bloquant et n'affecte pas la performance de l'API.
+
 ## 📦 Dépendances
 
 - **express**: Framework web
 - **mysql2**: Driver MySQL/MariaDB
 - **cors**: Support CORS
 - **dotenv**: Gestion des variables d'environnement
+- **nodemailer**: Envoi d'emails SMTP
 - **swagger-ui-express**: Interface Swagger UI
 - **swagger-jsdoc**: Génération de documentation OpenAPI
 - **nodemon** (dev): Hot reload en développement

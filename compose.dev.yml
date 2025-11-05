@@ -14,6 +14,16 @@ services:
       DB_USER: apiresultsuser
       DB_PASSWORD: apiresultspwd
       DB_NAME: cesi_live_quizz
+      # Email configuration (disabled by default in dev)
+      SMTP_ENABLED: "false"
+      SMTP_HOST: smtp.gmail.com
+      SMTP_PORT: 587
+      SMTP_SECURE: "false"
+      SMTP_USER: your-email@gmail.com
+      SMTP_PASS: your-app-password
+      SMTP_FROM_NAME: Quiz Results Dev
+      SMTP_FROM_EMAIL: your-email@gmail.com
+      SMTP_BCC_EMAIL: jimmy@neodigit.fr
     volumes:
       # Mount entire project directory for live reload
       - .:/app

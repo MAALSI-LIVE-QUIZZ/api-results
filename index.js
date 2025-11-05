@@ -4,6 +4,7 @@ const cors = require('cors');
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./swagger');
 const db = require('./db');
+const { sendQuizResultsEmail } = require('./email');
 
 const app = express();
 const PORT = process.env.PORT || 80;
@@ -188,6 +189,25 @@ app.post('/api/quiz-results', validateQuizResult, async (req, res) => {
     await connection.commit();
 
     console.log(`Quiz result saved successfully - ID: ${resultId}, Email: ${email}, Quiz: ${quizTitle}`);
+
+    // Send email notification (non-blocking)
+    // We don't await this to avoid delaying the API response
+    sendQuizResultsEmail({
+      email,
+      quizTitle,
+      score,
+      answers,
+      completedAt,
+      sessionDuration
+    }).then(result => {
+      if (result.success) {
+        console.log(`Email sent successfully to ${email}`);
+      } else {
+        console.error(`Failed to send email to ${email}: ${result.message || result.error}`);
+      }
+    }).catch(err => {
+      console.error(`Error sending email to ${email}:`, err);
+    });
 
     res.status(201).json({
       success: true,
