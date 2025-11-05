@@ -4,26 +4,14 @@ services:
       context: .
       dockerfile: Dockerfile.dev
     ports:
-      - "3030:80"
+      - "3030:${PORT:-80}"
     depends_on:
       - db
+    env_file:
+      - .env
     environment:
       NODE_ENV: development
       DB_HOST: db
-      DB_PORT: 3306
-      DB_USER: apiresultsuser
-      DB_PASSWORD: apiresultspwd
-      DB_NAME: cesi_live_quizz
-      # Email configuration (disabled by default in dev)
-      SMTP_ENABLED: "false"
-      SMTP_HOST: smtp.gmail.com
-      SMTP_PORT: 587
-      SMTP_SECURE: "false"
-      SMTP_USER: your-email@gmail.com
-      SMTP_PASS: your-app-password
-      SMTP_FROM_NAME: Quiz Results Dev
-      SMTP_FROM_EMAIL: your-email@gmail.com
-      SMTP_BCC_EMAIL: jimmy@neodigit.fr
     volumes:
       # Mount entire project directory for live reload
       - .:/app
@@ -33,12 +21,12 @@ services:
   db:
     image: mariadb:latest
     environment:
-      MYSQL_ROOT_PASSWORD: apiresultsrootpwd
-      MYSQL_DATABASE: cesi_live_quizz
-      MYSQL_USER: apiresultsuser
-      MYSQL_PASSWORD: apiresultspwd
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-apiresultsrootpwd}
+      MYSQL_DATABASE: ${DB_NAME:-cesi_live_quizz}
+      MYSQL_USER: ${DB_USER:-apiresultsuser}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-apiresultspwd}
     ports:
-      - "3306:3306"
+      - "${DB_PORT:-3306}:3306"
     volumes:
       - db_data:/var/lib/mysql
 
@@ -49,10 +37,10 @@ services:
     environment:
       ADMINER_DEFAULT_DB_DRIVER: mysql
       ADMINER_DEFAULT_DB_HOST: db
-      ADMINER_DEFAULT_DB_PORT: 3306
-      ADMINER_DEFAULT_DB_USERNAME: apiresultsuser
-      ADMINER_DEFAULT_DB_PASSWORD: apiresultspwd
-      ADMINER_DEFAULT_DB_NAME: cesi_live_quizz
+      ADMINER_DEFAULT_DB_PORT: ${DB_PORT:-3306}
+      ADMINER_DEFAULT_DB_USERNAME: ${DB_USER:-apiresultsuser}
+      ADMINER_DEFAULT_DB_PASSWORD: ${DB_PASSWORD:-apiresultspwd}
+      ADMINER_DEFAULT_DB_NAME: ${DB_NAME:-cesi_live_quizz}
     depends_on:
       - db
 
